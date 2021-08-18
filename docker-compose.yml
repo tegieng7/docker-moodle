@@ -1,0 +1,43 @@
+version: "3.8"
+services:
+  moodle:
+    image: tegieng7/moodle:3.11.2
+    container_name: moodle
+    hostname: moodle
+    restart: unless-stopped
+    depends_on:
+      - moodle-db
+    ports:
+      - "443:443"
+    networks:
+      - moodle
+    volumes:
+      - moodle-www:/var/www/html/moodle
+      - moodle-ssl:/etc/apache2/ssl
+      - moodle-data:/var/moodledata
+
+  moodle-db:
+    image: mysql:5.7.35
+    container_name: moodle-db
+    hostname: moodle-db
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    networks:
+      - moodle
+    volumes:
+      - moodle-db:/var/lib/mysql
+
+volumes:
+  moodle-www:
+  moodle-ssl:
+  moodle-data:
+  moodle-db:
+
+networks:
+  moodle:
+    name: moodle
